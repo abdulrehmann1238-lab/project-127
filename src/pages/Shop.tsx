@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useSearchParams, useParams, useNavigate } from 'react-router-dom';
 import { SlidersHorizontal, ArrowUpDown } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
 import { ProductCategory } from '../types';
@@ -25,14 +25,17 @@ interface ShopFilterState {
 export const Shop: React.FC = () => {
   const { products } = useInventory();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { category: routeCategory } = useParams<{ category?: string }>();
+  const navigate = useNavigate();
 
-  const initialCatParam = searchParams.get('category');
+  // Read category from search params or route params
+  const categoryParam = searchParams.get('category') || routeCategory;
   const initialCategory: ProductCategory | 'All' =
-    initialCatParam && ALL_CATEGORIES.includes(initialCatParam as any)
-      ? (initialCatParam as ProductCategory)
+    categoryParam && ALL_CATEGORIES.includes(categoryParam as any)
+      ? (categoryParam as ProductCategory)
       : 'All';
 
-  const initialSearch = searchParams.get('search') || '';
+  const searchQuery = searchParams.get('search') || '';
 
   const [filters, setFilters] = useState<ShopFilterState>({
     category: initialCategory,
@@ -44,6 +47,21 @@ export const Shop: React.FC = () => {
   const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc' | 'rating'>('featured');
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
 
+  // Sync category state when URL searchParams or route param changes (navbar clicks)
+  useEffect(() => {
+    const validCategory: ProductCategory | 'All' =
+      categoryParam && ALL_CATEGORIES.includes(categoryParam as any)
+        ? (categoryParam as ProductCategory)
+        : 'All';
+
+    setFilters((prev) => {
+      if (prev.category !== validCategory) {
+        return { ...prev, category: validCategory };
+      }
+      return prev;
+    });
+  }, [categoryParam]);
+
   // Derive unique sizes across all products
   const availableSizes = useMemo(() => {
     const sizeSet = new Set<string>();
@@ -51,7 +69,7 @@ export const Shop: React.FC = () => {
     return Array.from(sizeSet).filter((s) => !s.includes('Size Fits All')).slice(0, 8);
   }, [products]);
 
-  // Filter and sort
+  // Instant reactive filter and sort
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
       // Category
@@ -59,8 +77,8 @@ export const Shop: React.FC = () => {
         return false;
       }
       // Search query
-      if (initialSearch) {
-        const q = initialSearch.toLowerCase();
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
         const matchesName = p.name.toLowerCase().includes(q);
         const matchesDesc = p.description.toLowerCase().includes(q);
         const matchesCat = p.category.toLowerCase().includes(q);
@@ -86,7 +104,21 @@ export const Shop: React.FC = () => {
       if (sortBy === 'rating') return b.rating - a.rating;
       return 0; // featured default
     });
-  }, [products, filters, initialSearch, sortBy]);
+  }, [products, filters, searchQuery, sortBy]);
+
+  // When clicking category tabs, update both filters and URL for bookmarking/navigation
+  const handleCategoryTabClick = (cat: ProductCategory | 'All') => {
+    setFilters((prev) => ({ ...prev, category: cat }));
+    if (cat === 'All') {
+      const nextParams = new URLSearchParams(searchParams);
+      nextParams.delete('category');
+      setSearchParams(nextParams);
+    } else {
+      const nextParams = new URLSearchParams(searchParams);
+      nextParams.set('category', cat);
+      setSearchParams(nextParams);
+    }
+  };
 
   const handleResetFilters = () => {
     setFilters({
@@ -95,17 +127,15 @@ export const Shop: React.FC = () => {
       size: 'all',
       inStockOnly: false
     });
-    if (initialSearch) {
-      setSearchParams({});
-    }
+    setSearchParams({});
   };
 
   return (
-    <div className="bg-[#FAF8F3] min-h-screen py-8 sm:py-12">
+    <div className="bg-[#FAF8F3] min-h-screen py-6 sm:py-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Breadcrumb & Header */}
-        <div className="border-b border-[#E4E0D6] pb-8 mb-8">
+        <div className="border-b border-[#E4E0D6] pb-6 mb-6">
           <div className="text-xs uppercase tracking-[0.15em] text-[#8A7A5C] mb-2 font-medium">
             The Elevated Green &bull; Course Wardrobe
           </div>
@@ -115,31 +145,34 @@ export const Shop: React.FC = () => {
                 {filters.category === 'All' ? 'Complete Golf & Lifestyle Collection' : filters.category}
               </h1>
               <p className="text-xs sm:text-sm text-[#57564E] mt-1.5 max-w-xl">
-                From the first tee to the nineteenth hole — apparel and handcrafted leather goods built for how you actually play.
+                From the first tee to the nineteenth hole — apparel and handcrafted footwear built for how you actually play.
               </p>
             </div>
 
-            {/* Quick Category Switcher Tabs */}
-            <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
-              {ALL_CATEGORIES.map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setFilters((prev) => ({ ...prev, category: cat }))}
-                  className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
-                    filters.category === cat
-                      ? 'bg-[#1F3B2C] text-[#FAF8F3] shadow-sm'
-                      : 'bg-white text-[#57564E] border border-[#E4E0D6] hover:border-[#1F3B2C]'
-                  }`}
-                >
-                  {cat}
-                </button>
-              ))}
+            {/* Instant Category Switcher Tabs */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+              {ALL_CATEGORIES.map((cat) => {
+                const isSelected = filters.category === cat;
+                return (
+                  <button
+                    key={cat}
+                    onClick={() => handleCategoryTabClick(cat)}
+                    className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-150 ${
+                      isSelected
+                        ? 'bg-[#1F3B2C] text-[#FAF8F3] shadow-sm scale-105'
+                        : 'bg-white text-[#57564E] border border-[#E4E0D6] hover:border-[#1F3B2C] hover:text-[#1F3B2C]'
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
 
         {/* Controls Bar: Mobile Filter Button, Result Count, Sort */}
-        <div className="flex items-center justify-between pb-6 border-b border-[#E4E0D6] mb-8 gap-4">
+        <div className="flex items-center justify-between pb-4 border-b border-[#E4E0D6] mb-6 gap-4">
           <div className="flex items-center gap-3">
             {/* Mobile Filter Button */}
             <button
@@ -152,6 +185,7 @@ export const Shop: React.FC = () => {
 
             <span className="text-xs text-[#8B897D]">
               Showing <span className="font-semibold text-[#1C1C1A]">{filteredProducts.length}</span> pieces
+              {filters.category !== 'All' && <span> in <strong className="text-[#1F3B2C]">{filters.category}</strong></span>}
             </span>
           </div>
 
@@ -182,7 +216,12 @@ export const Shop: React.FC = () => {
             <div className="sticky top-28 bg-white p-6 rounded-xl border border-[#E4E0D6] shadow-sm">
               <FilterSidebar
                 filters={filters}
-                onFilterChange={setFilters}
+                onFilterChange={(newFilters) => {
+                  setFilters(newFilters);
+                  if (newFilters.category !== filters.category) {
+                    handleCategoryTabClick(newFilters.category);
+                  }
+                }}
                 onReset={handleResetFilters}
                 categories={ALL_CATEGORIES}
                 availableSizes={availableSizes}
@@ -223,7 +262,12 @@ export const Shop: React.FC = () => {
         isOpen={isFilterSheetOpen}
         onClose={() => setIsFilterSheetOpen(false)}
         filters={filters}
-        onFilterChange={setFilters}
+        onFilterChange={(newFilters) => {
+          setFilters(newFilters);
+          if (newFilters.category !== filters.category) {
+            handleCategoryTabClick(newFilters.category);
+          }
+        }}
         onReset={handleResetFilters}
         categories={ALL_CATEGORIES}
         availableSizes={availableSizes}

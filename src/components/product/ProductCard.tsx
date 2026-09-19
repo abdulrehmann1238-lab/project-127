@@ -42,19 +42,21 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <img
           src={primaryImage}
           alt={product.name}
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
+          loading="lazy"
+          decoding="async"
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
             isHovered && secondaryImage !== primaryImage ? 'opacity-0 scale-105' : 'opacity-100 scale-100'
           }`}
-          style={{ transition: 'opacity 400ms ease, transform 600ms ease' }}
+          style={{ transition: 'opacity 250ms ease, transform 400ms ease' }}
         />
-        {secondaryImage && secondaryImage !== primaryImage && (
+        {secondaryImage && secondaryImage !== primaryImage && isHovered && (
           <img
             src={secondaryImage}
             alt={`${product.name} alternate view`}
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
-              isHovered ? 'opacity-100 scale-105' : 'opacity-0 scale-100'
-            }`}
-            style={{ transition: 'opacity 400ms ease, transform 600ms ease' }}
+            loading="lazy"
+            decoding="async"
+            className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300 opacity-100 scale-105"
+            style={{ transition: 'opacity 250ms ease, transform 400ms ease' }}
           />
         )}
 

@@ -284,6 +284,74 @@ export const INITIAL_PRODUCTS: Product[] = [
     reviewCount: 52
   },
   {
+    id: 'prod-8b',
+    slug: 'st-andrews-waterproof-wingtip-oxford',
+    name: 'St. Andrews Waterproof Wingtip Oxford',
+    subtitle: 'Hand-Finished Italian Steerhide & Spikeless Outsole',
+    category: 'Footwear',
+    price: 275,
+    sku: 'EG-SH-OXF-8B',
+    description: 'Bespoke European craftsmanship built for 36-hole tournament days. Fully seam-sealed waterproof calfskin with brogue perforations, high-traction TPU turf cleats, and supple lambskin lining.',
+    details: [
+      'Top-grain hand-burnished Italian steerhide leather',
+      'Spikeless dual-density polyurethane fairway traction system',
+      'Waterproof membrane guaranteed through 100 coastal rounds',
+      'Removable cork and memory foam antimicrobial footbed'
+    ],
+    materials: 'Italian Calfskin Leather, Dual-Density TPU Outsole',
+    care: 'Clean with soft cloth and condition with natural wax polish.',
+    fit: 'Classic dress shoe fit. Medium width with structured heel counter.',
+    images: [
+      'https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1560769629-975ec94e6a86?auto=format&fit=crop&w=800&q=80'
+    ],
+    colors: [
+      { name: 'Heritage Chestnut', hex: '#633B23' },
+      { name: 'Onyx Black', hex: '#1C1C1A' }
+    ],
+    sizes: ['8.5', '9', '9.5', '10', '10.5', '11', '11.5', '12'],
+    stock: 9,
+    posStock: 9,
+    isNewArrival: true,
+    isBestSeller: true,
+    rating: 5.0,
+    reviewCount: 34
+  },
+  {
+    id: 'prod-8c',
+    slug: 'pebble-spikeless-tour-sneaker',
+    name: 'Pebble Spikeless Tour Sneaker',
+    subtitle: 'Breathable Technical Knit & OrthoLite Turf Sole',
+    category: 'Footwear',
+    price: 195,
+    sku: 'EG-SH-SNK-8C',
+    description: 'Modern athletic elegance for walking golfers. Features an engineered water-resistant stretch knit upper, responsive energy-return foam midsole, and perimeter turf grip lugs.',
+    details: [
+      'Engineered water-repellent performance knit with TPU mudguard',
+      'OrthoLite Impressions eco-cushioning for all-day walking comfort',
+      'Perimeter-weighted spikeless rubber studs for swing torque stability',
+      'Grip-lock tongue prevents sliding during foot rotation'
+    ],
+    materials: 'Technical Poly-Knit, High-Rebound EVA, Rubber Cleats',
+    care: 'Spot clean with mild soapy water and soft brush.',
+    fit: 'Athletic sneaker fit with natural toe splay.',
+    images: [
+      'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1560769629-975ec94e6a86?auto=format&fit=crop&w=800&q=80'
+    ],
+    colors: [
+      { name: 'Fairway Chalk & Moss', hex: '#EDE8DF' },
+      { name: 'Navy & Saddle', hex: '#1A2536' }
+    ],
+    sizes: ['8.5', '9', '9.5', '10', '10.5', '11', '11.5', '12'],
+    stock: 14,
+    posStock: 14,
+    isNewArrival: true,
+    isBestSeller: false,
+    rating: 4.8,
+    reviewCount: 27
+  },
+  {
     id: 'prod-9',
     slug: 'links-waxed-yardage-book-cover',
     name: 'Links Yardage Book & Scorecard Cover',
